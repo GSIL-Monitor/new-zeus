@@ -51,11 +51,12 @@ public class Environment {
 
 	private static String sn;
 	private static String snPassword;
+	private static String smsAppkey;
 
 
     public Environment(String env,String scheduleGroup,String downloadPath,String hadoopHome,String hadoopConfDir,String hiveHome,String hiveConfDir,
 			String host,String port,String username,String password,String sendFrom,String notifyUrl,String accessToken,String excludeFile, String defaultWorkerGroupId, String defaultMasterGroupId
-			,String maxMemRate, String maxCpuLoadPerCore, String scanRate,String scanExceptionRate,String actionInterval, String maxRunningJob,String company, String sn,String snPassword){
+			,String maxMemRate, String maxCpuLoadPerCore, String scanRate,String scanExceptionRate,String actionInterval, String maxRunningJob,String company, String sn,String snPassword,String appkey){
 		Environment.company=company.trim();
 		Environment.env=env.trim();
 		Environment.scheduleGroup=scheduleGroup.trim();
@@ -118,6 +119,7 @@ public class Environment {
 
 		Environment.sn=sn.trim();
 		Environment.snPassword=snPassword.trim();
+		Environment.smsAppkey=appkey.trim();
 
 		log.info("the company is " + company.trim());
         log.info("the env is " + env.trim());
@@ -139,6 +141,7 @@ public class Environment {
 		log.info("the maxRunningJob is " + maxRunningJob.trim());
 		log.info("the sn is " + sn.trim());
 		log.info("the snPassword is " + snPassword.trim());
+		log.info("the smsAppkey is " + smsAppkey.trim());
 	}
 
 	public static String getCompany() {
@@ -269,5 +272,9 @@ public class Environment {
 
 	public static String getSnPassword() {
 		return snPassword;
+	}
+
+	public static String getSmsAppkey() {
+		return smsAppkey;
 	}
 }

@@ -30,6 +30,7 @@ public class SMSAlarm extends AbstractZeusAlarm{
 	private MysqlLogManager zeusLogManager;
 
     private static String smsUrl = Environment.getNotifyUrl();//Noc服务器
+	private static String smsAppkey = Environment.getSmsAppkey();
 	private static String accessToken = Environment.getAccessToken();//Noc access_token
 	private static String company = Environment.getCompany();//Noc access_token
 	private static String sn = Environment.getSn();
@@ -54,6 +55,9 @@ public class SMSAlarm extends AbstractZeusAlarm{
 		}else if(company.equals("wuhao"))
 		{
 			sendWuHaoAlarm(jobId ,userPhones,content);
+		}else if(company.equals("secoo"))
+		{
+			sendSecooAlarm(jobId ,userPhones,content);
 		}
 
 	}
@@ -94,6 +98,69 @@ public class SMSAlarm extends AbstractZeusAlarm{
 			log.error("jobId: " + jobId + " send noc fail,", e);
 		}
    }
+
+	class SecooResponseJson{
+
+		private String msg;
+		private int code;
+
+		public String getMsg() {
+			return msg;
+		}
+		public void setMsg(String msg) {
+			this.msg = msg;
+		}
+		public int getCode() {
+			return code;
+		}
+		public void setCode(int code) {
+			this.code = code;
+		}
+
+		@Override
+		public String toString() {
+			return "ReturnJson [msg=" + msg + ", code=" + code + "]";
+		}
+	}
+
+	public void sendSecooAlarm(String jobId ,String userPhones,String content) {
+		log.info("发送短信:" + userPhones + " content:" + content);
+		HttpClient client = new HttpClient();
+		PostMethod method = new PostMethod(smsUrl);
+		Gson gson = new Gson();
+		method.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+		try {
+//			Map<String, Object> bodyMap = new HashMap<String,Object >();
+//			bodyMap.put();
+//			bodyMap.put();
+//			bodyMap.put();
+//			bodyMap.put();
+
+			method.addParameter("appkey", smsAppkey);
+			method.addParameter("token", accessToken);
+			method.addParameter("tos", userPhones);
+			method.addParameter("content",content);
+			int code = client.executeMethod(method);
+			log.info("sms the return code is : " + code);
+			String responseBodyAsString = method.getResponseBodyAsString(2000);
+			log.info("sms the response body is " + responseBodyAsString);
+			SecooResponseJson rJ = null;
+			if (responseBodyAsString != null) {
+				rJ = gson.fromJson(responseBodyAsString, SecooResponseJson.class);
+			}
+			if (code !=  HttpStatus.SC_OK || rJ == null) {
+				log.error("jobId : " + jobId  +"sms send noc failed, code: " + code);
+				return;
+			}
+			log.info("jobId : " + jobId  + "sms send noc successfully!");
+		} catch(HttpException  e) {
+			log.error("jobId: " + jobId + " send noc fail,", e);
+		} catch (IOException e) {
+			log.error("jobId: " + jobId + " send noc fail,", e);
+		} catch (Exception e) {
+			log.error("jobId: " + jobId + " send noc fail,", e);
+		}
+	}
    
 	class ResponseJson{
 
@@ -149,15 +216,17 @@ public class SMSAlarm extends AbstractZeusAlarm{
 	}
 	
 	public static void main(String[] args) {
-		String returnString = "{\"message\": \"\", \"data\": \"enqueue\", \"success\": true, \"error\": 0}";
-//		String returnString = null;
-		Gson gson = new Gson();
-		ResponseJson rJson = gson.fromJson(returnString, ResponseJson.class);
-		System.out.println("the message is " + rJson.getMessage());
-		System.out.println("the data is " + rJson.getData());
-		System.out.println("the error is " + rJson.getError());
-		System.out.println("the success is " + rJson.isSuccess());
+//		String returnString = "{\"message\": \"\", \"data\": \"enqueue\", \"success\": true, \"error\": 0}";
+////		String returnString = null;
+//		Gson gson = new Gson();
+//		ResponseJson rJson = gson.fromJson(returnString, ResponseJson.class);
+//		System.out.println("the message is " + rJson.getMessage());
+//		System.out.println("the data is " + rJson.getData());
+//		System.out.println("the error is " + rJson.getError());
+//		System.out.println("the success is " + rJson.isSuccess());
 
+		SMSAlarm alarm = new SMSAlarm();
+		alarm.sendSecooAlarm("1", "18612943269", "hi2");
 	}
 	
 	
